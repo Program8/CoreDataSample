@@ -9,9 +9,10 @@ import SwiftUI
 
 @main
 struct CoreDataSampleApp: App {
+    let coreDataManager = CDM.shared
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView().environment(\.managedObjectContext, coreDataManager.context)
         }
     }
 }

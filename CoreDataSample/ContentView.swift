@@ -18,11 +18,13 @@ struct ContentView: View {
                 
                 if let isLoaded = cdm.isLoaded {
                     if isLoaded {
-                        Text(cdm.loadingMsg).font(.title3).multilineTextAlignment(.center)
+                        Text(cdm.loadingMsg).font(.title3).multilineTextAlignment(.center).foregroundStyle(.green)
                         Button("Next") {
                             isNavigating = true
                         }.font(.title)
                         .padding()
+                    }else{
+                        Text(cdm.loadingMsg).font(.title3).multilineTextAlignment(.center).foregroundStyle(.red)
                     }
                 } else {
                     Text("Please wait, loading core data model...")
@@ -36,9 +38,6 @@ struct ContentView: View {
         }
     }
 }
-
-
-
 #Preview {
     ContentView()
 }

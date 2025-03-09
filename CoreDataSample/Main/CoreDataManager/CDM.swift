@@ -11,14 +11,14 @@ class CDM:ObservableObject{
 //    protocol Delegate:AnyObject{
 //        func coreDataManager(isLoadPersistentStoresSuccess: Bool,errorMsg:String?)
 //    }
-    private let dataModelName:String
+    var context: NSManagedObjectContext { persistentContainer.viewContext }
+    private let dataModelName:String="CoreDataModel"
     private var persistentContainer: NSPersistentContainer!
 //    private weak var delegate:Delegate?
-    static let shared=CDM(dataModelName: "CoreDataModel")
+    static let shared=CDM()
     @Published var isLoaded:Bool?
     var loadingMsg=""
-    private init(dataModelName: String){
-        self.dataModelName = dataModelName
+    private init(){
         setUpCoreDataStack()
     }
     private func setUpCoreDataStack(){
