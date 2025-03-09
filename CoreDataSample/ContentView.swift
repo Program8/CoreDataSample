@@ -8,16 +8,36 @@
 import SwiftUI
 
 struct ContentView: View {
+    @ObservedObject var cdm = CDM.shared
+    @State private var isNavigating = false  // State to control navigation
+
     var body: some View {
-        VStack {
-            Image(systemName: "globe")
-                .imageScale(.large)
-                .foregroundStyle(.tint)
-            Text("Hello, world!")
+        NavigationStack {
+            Text("Core Data Manager loading status").font(.largeTitle).multilineTextAlignment(.center)
+            VStack {
+                
+                if let isLoaded = cdm.isLoaded {
+                    if isLoaded {
+                        Text(cdm.loadingMsg).font(.title3).multilineTextAlignment(.center)
+                        Button("Next") {
+                            isNavigating = true
+                        }.font(.title)
+                        .padding()
+                    }
+                } else {
+                    Text("Please wait, loading core data model...")
+                        .padding().font(.title)
+                }
+            }.padding(10)
+            .navigationTitle("Home")
+            .navigationDestination(isPresented: $isNavigating) {
+                ViewCoreData()  // Destination View
+            }
         }
-        .padding()
     }
 }
+
+
 
 #Preview {
     ContentView()
