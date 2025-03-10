@@ -12,7 +12,7 @@ struct CoreDataSampleApp: App {
     let coreDataManager = CDM.shared
     var body: some Scene {
         WindowGroup {
-            ContentView().environment(\.managedObjectContext, coreDataManager.context)
+            ContentView()
         }
     }
 }

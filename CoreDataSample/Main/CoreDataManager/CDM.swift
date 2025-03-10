@@ -11,7 +11,9 @@ class CDM:ObservableObject{
 //    protocol Delegate:AnyObject{
 //        func coreDataManager(isLoadPersistentStoresSuccess: Bool,errorMsg:String?)
 //    }
-    var context: NSManagedObjectContext { persistentContainer.viewContext }
+    var viewContext: NSManagedObjectContext { persistentContainer.viewContext }
+    var newBgContext:NSManagedObjectContext{persistentContainer.newBackgroundContext()}
+//    var newBgContext:NSManagedObjectContext{viewContext}
     private let dataModelName:String="CoreDataModel"
     private var persistentContainer: NSPersistentContainer!
 //    private weak var delegate:Delegate?
