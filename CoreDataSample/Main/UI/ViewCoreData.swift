@@ -8,22 +8,30 @@ import SwiftUI
 struct ViewCoreData: View {
     @EnvironmentObject var alertManager: AlertManager
     @State var isLoading=false
-    @State var users=[User]()
+    @StateObject private var viewModel = UsersViewModel(context: CDM.shared.viewContext)
     var body: some View{
         ZStack{
             Color.white
             VStack{
                 Spacer().frame(height: 50) // Adds 50 points of top spacing
                 Button("Add"){
-                    saveData()
+//                    for _ in 1...100{
+                        saveData()
+//                    }
                 }.font(.title)
                 Spacer()
-                List(users, id: \.self) { user in
+                List(viewModel.users, id: \.objectID) { user in
                                 VStack(alignment: .leading) {
-                                    let name=user.name ?? "-"
-                                    let dateTime=user.createdAt?.formatted() ?? "-"
-                                    Text((name+" "+dateTime)).font(.headline)
-                                    Text(user.email ?? "-").font(.subheadline).foregroundColor(.gray)
+                                    let no=1//(viewModel.users.count-index)
+                                    let name=""//user.name ?? "-"
+                                    let dateTime=""//user.createdAt?.formatted() ?? "-"
+                                    let email=user.email ??  "-"
+                                    Text(("\(no). "+name+" "+dateTime)).font(.headline)
+                                    Text(email).font(.subheadline).foregroundColor(.gray)
+                                     
+                                }.onAppear(){
+                                    let count=self.viewModel.users.filter({!$0.isFault}).count
+                                    print("Data loaded for = \(count) objects")
                                     
                                 }
                             }
@@ -31,27 +39,28 @@ struct ViewCoreData: View {
             }
             FullScreenLoaderView(isLoading: $isLoading)
         }.frame(maxWidth:.infinity,maxHeight: .infinity).onAppear(){
-            fetchData()
+            self.viewModel.fetchUsers()
         }.globalAlert()
     }
 }
 // MARK: Business logic
 extension ViewCoreData{
     func fetchData(){
-        isLoading=true
-        User.fetchUsers(){ result in
-            isLoading=false
-            switch result{
-            case .success(let arr):
-                users=arr
-            case .failure(let error):
-                users=[]
-                alertManager.title=Constants.Strings.errorOccurred
-                alertManager.message=error.localizedDescription
-                alertManager.showAlert=true
-            }
-            
-        }
+        self.viewModel.fetchUsers()
+//        isLoading=true
+//        User.fetchUsers(){ result in
+//            isLoading=false
+//            switch result{
+//            case .success(let arr):
+//                users=arr
+//            case .failure(let error):
+//                users=[]
+//                alertManager.title=Constants.Strings.errorOccurred
+//                alertManager.message=error.localizedDescription
+//                alertManager.showAlert=true
+//            }
+//            
+//        }
     }
     func saveData(){
         isLoading=true

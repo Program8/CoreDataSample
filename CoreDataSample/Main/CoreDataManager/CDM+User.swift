@@ -8,12 +8,13 @@ import Foundation
 import CoreData
 
 extension User{
+    static let delay=false
+    static let delayForSeconds:UInt32=1
     static func saveUser(_ closure:@escaping(Result<Bool,Error>)->()){
         let bgContext = CDM.shared.newBgContext
         bgContext.perform {
             // Simulate a delay (e.g., network latency)
-            sleep(5) // Blocking delay (5 seconds)
-            
+            if User.delay{sleep(User.delayForSeconds)}
             let user = User(context: bgContext)
             user.id = UUID()
             user.name = "Test"
@@ -35,6 +36,7 @@ extension User{
         let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)] // Latest users first
         bgContext.perform{
+            if User.delay{sleep(User.delayForSeconds)}
             do {
                 let users=try bgContext.fetch(fetchRequest)
                 // Transfer objects to main context
