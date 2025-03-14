@@ -6,6 +6,7 @@
 //
 import SwiftUI
 struct ViewCoreData: View {
+    @EnvironmentObject var alertManager: AlertManager
     @State var isLoading=false
     @State var users=[User]()
     var body: some View{
@@ -31,7 +32,7 @@ struct ViewCoreData: View {
             FullScreenLoaderView(isLoading: $isLoading)
         }.frame(maxWidth:.infinity,maxHeight: .infinity).onAppear(){
             fetchData()
-        }
+        }.globalAlert()
     }
 }
 // MARK: Business logic
@@ -43,8 +44,11 @@ extension ViewCoreData{
             switch result{
             case .success(let arr):
                 users=arr
-            case .failure(_):
+            case .failure(let error):
                 users=[]
+                alertManager.title=Constants.Strings.errorOccurred
+                alertManager.message=error.localizedDescription
+                alertManager.showAlert=true
             }
             
         }
@@ -58,12 +62,15 @@ extension ViewCoreData{
                 fetchData()
                 break
             case .failure(let error):
-                break
+                alertManager.title=Constants.Strings.errorOccurred
+                alertManager.message=error.localizedDescription
+                alertManager.showAlert=true
+                
             }
         }
     }
 }
 
 #Preview {
-    ViewCoreData()
+    ViewCoreData().environmentObject(AlertManager.shared)
 }
