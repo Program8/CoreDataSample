@@ -8,23 +8,21 @@ import SwiftUI
 struct ViewCoreData: View {
     @EnvironmentObject var alertManager: AlertManager
     @State var isLoading=false
+    
     @StateObject private var viewModel = UsersViewModel(context: CDM.shared.viewContext)
     var body: some View{
         ZStack{
-            Color.white
-            VStack{
-                Spacer().frame(height: 50) // Adds 50 points of top spacing
-                Button("Add"){
-//                    for _ in 1...100{
-                        saveData()
-//                    }
-                }.font(.title)
-                Spacer()
-                List(viewModel.users, id: \.objectID) { user in
-                                VStack(alignment: .leading) {
-                                    let no=1//(viewModel.users.count-index)
-                                    let name=""//user.name ?? "-"
-                                    let dateTime=""//user.createdAt?.formatted() ?? "-"
+            VStack(spacing: 10){
+                Spacer().frame(height: 10) // Adds 50 points of top spacing
+                ViewButtonAddData(){
+                    fetchData()
+                }  
+                List(viewModel.users.indices, id: \.self) { index in
+                    let user = viewModel.users[index]
+                    VStack(alignment: .leading) {
+                        let no = viewModel.users.count - index  // Reverse numbering
+                                    let name=user.name ?? "-"
+                                    let dateTime=user.createdAt?.formatted() ?? "-"
                                     let email=user.email ??  "-"
                                     Text(("\(no). "+name+" "+dateTime)).font(.headline)
                                     Text(email).font(.subheadline).foregroundColor(.gray)
@@ -34,13 +32,13 @@ struct ViewCoreData: View {
                                     print("Data loaded for = \(count) objects")
                                     
                                 }
-                            }
+                }
                 
             }
             FullScreenLoaderView(isLoading: $isLoading)
         }.frame(maxWidth:.infinity,maxHeight: .infinity).onAppear(){
             self.viewModel.fetchUsers()
-        }.globalAlert()
+        }.globalAlert().navigationTitle("Fetch Data")
     }
 }
 // MARK: Business logic
@@ -62,24 +60,10 @@ extension ViewCoreData{
 //            
 //        }
     }
-    func saveData(){
-        isLoading=true
-        User.saveUser(){result in
-            isLoading=false
-            switch result{
-            case .success(_):
-                fetchData()
-                break
-            case .failure(let error):
-                alertManager.title=Constants.Strings.errorOccurred
-                alertManager.message=error.localizedDescription
-                alertManager.showAlert=true
-                
-            }
-        }
-    }
-}
 
+}
 #Preview {
-    ViewCoreData().environmentObject(AlertManager.shared)
+    NavigationStack {
+        ViewCoreData().environmentObject(AlertManager.shared)
+    }
 }

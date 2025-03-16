@@ -29,7 +29,7 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
             try fetchedResultsController.performFetch()
             users = fetchedResultsController.fetchedObjects ?? []
             
-//            print("users count = \(self.users.count)")
+            print("users count = \(self.users.count)")
         } catch {
             print("Error fetching users: \(error)")
         }

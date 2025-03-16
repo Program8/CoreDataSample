@@ -32,15 +32,15 @@ struct ContentView: View {
                         Text("Please wait, loading core data model...")
                             .padding().font(.title)
                     }
-                }.padding(10)
+                }
                     .navigationTitle("Home")
                     .navigationDestination(isPresented: $isNavigating) {
                         ViewCoreData()  // Destination View
                     }
             }
-        }
+        }.padding(10)
     }
 }
 #Preview {
-    ContentView()
+    ContentView().environmentObject(AlertManager.shared)
 }

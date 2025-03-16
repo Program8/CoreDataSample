@@ -10,16 +10,18 @@ import CoreData
 extension User{
     static let delay=false
     static let delayForSeconds:UInt32=1
-    static func saveUser(_ closure:@escaping(Result<Bool,Error>)->()){
+    static func saveUser(noOfEntriesToSave:Int,name:String,email:String,closure:@escaping(Result<Bool,Error>)->()){
         let bgContext = CDM.shared.newBgContext
         bgContext.perform {
             // Simulate a delay (e.g., network latency)
             if User.delay{sleep(User.delayForSeconds)}
-            let user = User(context: bgContext)
-            user.id = UUID()
-            user.name = "Test"
-            user.createdAt = Date()
-            user.email = "test@gmail.com"
+            for _ in 1...noOfEntriesToSave{
+                let user = User(context: bgContext)
+                user.id = UUID()
+                user.name = name
+                user.createdAt = Date()
+                user.email = email
+            }
             do {
                 try bgContext.save()
                 print("User saved successfully")

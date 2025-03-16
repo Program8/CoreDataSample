@@ -6,34 +6,59 @@
 //
 
 import SwiftUI
-struct ListData:Identifiable{
-    var id: String { title }
-    let title:String
-    let view:AnyView
-}
-struct ViewActionList: View {
-    var body: some View {
-//            NavigationView {
-                List(getList(), id: \.id) { item in
-                    NavigationLink(destination: item.view) {
-                        Text(item.title)
-                            .font(.headline)
-                            .padding()
-                    }
-                }
-                .navigationTitle("Core Data Actions")
-//            }
-        }
-    func getList()->[ListData]{
-        var arr=[ListData]()
-        arr.append(ListData(title: "Add Data",view: AnyView(ViewCoreData())))
-        arr.append(ListData(title: "Fetch Data",view: AnyView(ViewCoreData())))
-                   return arr
-    }
+import SwiftUI
+
+struct ListData: Identifiable {
+    var id: String = UUID().uuidString
+    let title: String
+    let subTitle: String
+    let view: () -> AnyView
 }
 
-#Preview {
-    NavigationView {
+struct ListSection {
+    let name: String
+    let items: [ListData]
+}
+
+struct ViewActionList: View {
+    var body: some View {
+        NavigationStack {
+            List{
+                ForEach(getSections(), id: \.name) { section in
+                    Section(header: Text(section.name).font(.headline)) {
+                        ForEach(section.items) { item in
+                            NavigationLink(destination: item.view()) {
+                                VStack(alignment: .leading) {
+                                    Text(item.title)
+                                        .font(.headline)
+                                    Text(item.subTitle)
+                                        .font(.subheadline)
+                                        .foregroundColor(.gray)
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            .navigationTitle("Core Data Actions")
+        }
+    }
+
+    func getSections() -> [ListSection] {
+        return [
+            ListSection(name: "Basic Actions", items: [
+                ListData(title: "Add Data", subTitle: "Insert new records", view: { AnyView(ViewCoreData()) }),
+                ListData(title: "Fetch Data", subTitle: "Retrieve stored records", view: { AnyView(ViewCoreData()) })
+            ]),
+            ListSection(name: "Advanced Actions", items: [
+                ListData(title: "Update Data", subTitle: "Modify existing records", view: { AnyView(ViewCoreData()) }),
+                ListData(title: "Delete Data", subTitle: "Remove stored records", view: { AnyView(ViewCoreData()) })
+            ])
+        ]
+    }
+}
+#Preview{
+    NavigationStack {
         ViewActionList()
     }.environmentObject(AlertManager.shared)
 }
