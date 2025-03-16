@@ -15,7 +15,12 @@ struct CoreDataSampleApp: App {
         WindowGroup {
             ContentView()
             .environmentObject(alertManager) // Inject globally
-            .globalAlert()
+//            .globalAlert()
         }
+    }
+}
+func invokeInUIThread(_ closure:@escaping @autoclosure()->Void){
+    DispatchQueue.main.async{
+        closure()
     }
 }

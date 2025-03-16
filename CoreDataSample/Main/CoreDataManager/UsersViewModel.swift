@@ -6,11 +6,12 @@
 //
 import CoreData
 class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDelegate {
+    private let delayForSeconds:UInt32? = 3//nil
     private let fetchedResultsController: NSFetchedResultsController<User>
     @Published var users: [User] = []
-    @Published var isLoading=false
-    @Published var totalUsers:Int = -1
-    @Published var totalUsersDataInMemory:Int = -1
+    @Published var showLoader=false
+    @Published var totalUsers:Int = 0
+    @Published var totalUsersDataInMemory:Int = 0
     init(context: NSManagedObjectContext) {
         let request: NSFetchRequest<User> = User.fetchRequest()
         request.fetchBatchSize=25
@@ -70,4 +71,30 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
         }
     }
 }
-
+// MARK: Save
+extension UsersViewModel{
+    func saveUser(noOfEntriesToSave:Int,name:String,email:String,onComplete:@escaping()->()){
+        showLoader=true
+        let bgContext = CDM.shared.newBgContext
+        bgContext.perform {
+            // Simulate a delay (e.g., network latency)
+            if let val=self.delayForSeconds{sleep(val)}
+            for _ in 1...noOfEntriesToSave{
+                let user = User(context: bgContext)
+                user.id = UUID()
+                user.name = name
+                user.createdAt = Date()
+                user.email = email
+            }
+            do {
+                try bgContext.save()
+                print("User saved successfully")
+                invokeInUIThread(onComplete())
+            } catch {
+                print("Failed to save user: \(error.localizedDescription)")
+                AlertManager.shared.show(title: "Save Error", message: error.localizedDescription)
+            }
+            invokeInUIThread(self.showLoader=false)
+        }
+    }
+}

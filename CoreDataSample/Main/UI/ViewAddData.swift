@@ -8,19 +8,16 @@ import SwiftUI
 import CoreData
 struct ViewAddData: View {
     @EnvironmentObject var alertManager: AlertManager
-    @State var isLoading=false
     @State private var name: String = ""
     @State private var email: String = ""
     @State private var createdAt: Date = Date()
     @State private var entryCount: String = "1" // Default count
     @FocusState private var isTextFieldFocused: Bool // To dismiss keyboard
-
+    @StateObject private var viewModel = UsersViewModel(context: CDM.shared.viewContext)
     let minEntries = 1
     let maxEntries = 1000 // Adjust as needed
     let action: () -> Void
-
     @Environment(\.presentationMode) var presentationMode // For dismissing the view
-
     var body:some View {
         ZStack {
             Form{
@@ -40,13 +37,6 @@ struct ViewAddData: View {
                             .onChange(of: entryCount) {
                                 validateEntryCount()
                             }
-                            .toolbar {
-                                ToolbarItem(placement: .keyboard) {
-                                    Button("Done") {
-                                        isTextFieldFocused = false
-                                    }
-                                }
-                            }
                         
                         Button(action: saveUser) {
                             Label("Save User(s)", systemImage: "checkmark.circle.fill")
@@ -61,7 +51,7 @@ struct ViewAddData: View {
                 }
                 
             }
-            FullScreenLoaderView(isLoading: $isLoading)
+            FullScreenLoaderView(isLoading: $viewModel.showLoader)
             .navigationTitle("Add User")
             .navigationBarItems(trailing: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
@@ -81,21 +71,9 @@ struct ViewAddData: View {
     }
     
     private func saveUser() {
-        isLoading=true
-        User.saveUser(noOfEntriesToSave: Int(entryCount)!, name: name, email: email){ result in
-            isLoading=false
-            switch result{
-            case .success(_):
-                presentationMode.wrappedValue.dismiss() // Close form after saving
-                action()
-                break
-            case .failure(let error):
-                alertManager.title=Constants.Strings.errorOccurred
-                alertManager.message=error.localizedDescription
-                alertManager.showAlert=true
-                
-            }
-            
+        viewModel.saveUser(noOfEntriesToSave: Int(entryCount)!, name: name, email: email){
+            presentationMode.wrappedValue.dismiss() // Close form after saving
+            action()
         }
     }
 }
