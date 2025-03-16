@@ -54,5 +54,5 @@ extension User{
     }
 }
 enum MyError:Error{
-    case SomeError
+    case SomeError(message:String)
 }

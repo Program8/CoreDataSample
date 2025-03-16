@@ -15,6 +15,7 @@ struct CoreDataSampleApp: App {
         WindowGroup {
             ContentView()
             .environmentObject(alertManager) // Inject globally
+            .globalAlert()
         }
     }
 }
