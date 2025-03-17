@@ -15,7 +15,7 @@ struct ViewAddData: View {
     @FocusState private var isTextFieldFocused: Bool // To dismiss keyboard
     @StateObject private var viewModel = UsersViewModel()
     let minEntries = 1
-    let maxEntries = 1000 // Adjust as needed
+    let maxEntries = 10_00_000 // Adjust as needed
     let action: () -> Void
     @Environment(\.presentationMode) var presentationMode // For dismissing the view
     var body:some View {

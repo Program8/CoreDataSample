@@ -6,7 +6,7 @@
 //
 import CoreData
 class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDelegate {
-    private let delayForSeconds:UInt32? = 3//nil
+    private let delayForSeconds:UInt32? = nil//3//nil
     private let fetchedResultsController: NSFetchedResultsController<User>
     @Published var users: [User] = []
     @Published var showLoader=false
