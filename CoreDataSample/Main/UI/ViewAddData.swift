@@ -13,7 +13,7 @@ struct ViewAddData: View {
     @State private var createdAt: Date = Date()
     @State private var entryCount: String = "1" // Default count
     @FocusState private var isTextFieldFocused: Bool // To dismiss keyboard
-    @StateObject private var viewModel = UsersViewModel(context: CDM.shared.viewContext)
+    @StateObject private var viewModel = UsersViewModel()
     let minEntries = 1
     let maxEntries = 1000 // Adjust as needed
     let action: () -> Void

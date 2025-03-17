@@ -12,53 +12,70 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
     @Published var showLoader=false
     @Published var totalUsers:Int = 0
     @Published var totalUsersDataInMemory:Int = 0
-    init(context: NSManagedObjectContext) {
+    override init() {
         let request: NSFetchRequest<User> = User.fetchRequest()
         request.fetchBatchSize=25
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         fetchedResultsController = NSFetchedResultsController(
             fetchRequest: request,
-            managedObjectContext: context,
+            managedObjectContext: CDM.shared.newBgContext,
             sectionNameKeyPath: nil,
             cacheName: nil
         )
         super.init()
         fetchedResultsController.delegate = self
     }
-//    // Fetch all Users
-//    static func fetchUsers(_ closure:@escaping (Result<[User],Error>)->Void) {
-//        let bgContext = CDM.shared.newBgContext
-//        let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
-//        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)] // Latest users first
-//        bgContext.perform{
-//            if User.delay{sleep(User.delayForSeconds)}
-//            do {
-//                let users=try bgContext.fetch(fetchRequest)
-//                // Transfer objects to main context
-//                            let mainContext = CDM.shared.viewContext
-//                            let mainThreadUsers = users.map { mainContext.object(with: $0.objectID) as! User }
-//                DispatchQueue.main.async{closure(.success(mainThreadUsers))}
-////                DispatchQueue.main.async{closure(.failure(MyError.SomeError))}
-//            } catch {
-//                print("Failed to fetch users: \(error.localizedDescription)")
-//                DispatchQueue.main.async{closure(.failure(error))}
-//            }
-//        }
-//    }
     func fetchUsers(){
-        do {
-            try fetchedResultsController.performFetch()
-            users = fetchedResultsController.fetchedObjects ?? []
-//            print("users count = \(self.users.count)")
-//            throw MyError.SomeError(message: "xyz")
-        } catch {
-            print("Error fetching users: \(error)")
-            AlertManager.shared.show(title: "Fetch Error", message: error.localizedDescription)
-            users=[]
+        showLoader=true
+        fetchedResultsController.managedObjectContext.perform{[self] in
+            if let val=self.delayForSeconds{sleep(val)}
+            do {
+                try fetchedResultsController.performFetch()
+                let usersBgThread = fetchedResultsController.fetchedObjects ?? []
+                let objectIDs = usersBgThread.map { $0.objectID }
+                let mainContext = CDM.shared.viewContext
+                mainContext.performAndWait{
+                    let usersInMainContext = objectIDs.compactMap { objectID in
+                        mainContext.object(with: objectID) as? User
+                    }
+                    self.users=usersInMainContext
+                }
+            } catch {
+                print("Error fetching users: \(error)")
+                AlertManager.shared.show(title: "Fetch Error", message: error.localizedDescription)
+                invokeInUIThread(self.users=[])
+            }
+            invokeInUIThread {
+                self.totalUsers=self.users.count;
+                self.countNoFaultObjects()
+                self.showLoader=false
+            }
         }
-        totalUsers=users.count
-        countNoFaultObjects()
     }
+    //     func fetchUsers() {
+    //            let bgContext = CDM.shared.newBgContext
+    //            let fetchRequest: NSFetchRequest<User> = User.fetchRequest()
+    //            fetchRequest.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)] // Latest users first
+    //            bgContext.perform{
+    //                do {
+    //                    let users=try bgContext.fetch(fetchRequest)
+    //                    let objectIDs = users.map { $0.objectID }
+    //                    let mainContext = CDM.shared.viewContext
+    //                    mainContext.perform {
+    //                        // Transfer objects to main context
+    //
+    //                        let usersInMainContext = objectIDs.compactMap { objectID in
+    //                            mainContext.object(with: objectID) as? User
+    //                        }
+    //                        self.users=usersInMainContext
+    //                    }
+    //    //                DispatchQueue.main.async{closure(.failure(MyError.SomeError))}
+    //                } catch {
+    //                    print("Failed to fetch users: \(error.localizedDescription)")
+    //
+    //                }
+    //            }
+    //        }
     func countNoFaultObjects(){
         totalUsersDataInMemory=users.filter({!$0.isFault}).count
         print("Data loaded for = \(totalUsersDataInMemory) objects")
@@ -66,7 +83,7 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         DispatchQueue.main.async {
             self.users = self.fetchedResultsController.fetchedObjects ?? []
-//            Utility.log(msg: "users count = \(self.users.count)")
+            //            Utility.log(msg: "users count = \(self.users.count)")
             print("users count = \(self.users.count)")
         }
     }

@@ -7,7 +7,7 @@
 import SwiftUI
 struct ViewCoreData: View {
     @EnvironmentObject var alertManager: AlertManager
-    @StateObject private var viewModel = UsersViewModel(context: CDM.shared.viewContext)
+    @StateObject private var viewModel = UsersViewModel()
     @State var addData=false
     var body: some View{
         ZStack{
@@ -32,9 +32,8 @@ struct ViewCoreData: View {
                         //                        Text("Data in memory").foregroundStyle(user.isFault ? Color.red : Color.green)
                     }.onAppear(){
                         viewModel.countNoFaultObjects()
-                    }
+                    } 
                 }
-                
             }
             FullScreenLoaderView(isLoading: $viewModel.showLoader)
         }.frame(maxWidth:.infinity,maxHeight: .infinity).onAppear(){

@@ -24,3 +24,8 @@ func invokeInUIThread(_ closure:@escaping @autoclosure()->Void){
         closure()
     }
 }
+func invokeInUIThread(_ closure:@escaping ()->Void){
+    DispatchQueue.main.async{
+        closure()
+    }
+}
