@@ -14,7 +14,8 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
     @Published var totalUsersDataInMemory:Int = 0
     override init() {
         let request: NSFetchRequest<User> = User.fetchRequest()
-        request.fetchBatchSize=25
+        request.fetchBatchSize=100
+//        request.fetchLimit=50
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         fetchedResultsController = NSFetchedResultsController(
             fetchRequest: request,
@@ -47,7 +48,7 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
             }
             invokeInUIThread {
                 self.totalUsers=self.users.count;
-                self.countNoFaultObjects()
+                self.countNoFaultObjectsInBg()
                 self.showLoader=false
             }
         }
@@ -76,9 +77,13 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
     //                }
     //            }
     //        }
-    func countNoFaultObjects(){
-        totalUsersDataInMemory=users.filter({!$0.isFault}).count
-        print("Data loaded for = \(totalUsersDataInMemory) objects")
+    func countNoFaultObjectsInBg(){
+        ThreadManager.shared.serialDispatchQueue.async{
+            let count=self.users.filter({!$0.isFault}).count
+            invokeInUIThread(self.totalUsersDataInMemory=count)
+            sleep(1)
+        }
+        
     }
     func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
         DispatchQueue.main.async {

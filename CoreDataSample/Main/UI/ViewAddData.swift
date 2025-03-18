@@ -12,6 +12,7 @@ struct ViewAddData: View {
     @State private var email: String = ""
     @State private var createdAt: Date = Date()
     @State private var entryCount: String = "1" // Default count
+    @State private var disableButton=false
     @FocusState private var isTextFieldFocused: Bool // To dismiss keyboard
     @StateObject private var viewModel = UsersViewModel()
     let minEntries = 1
@@ -22,30 +23,30 @@ struct ViewAddData: View {
         ZStack {
             Form{
                 Section(header: Text("User Details")) {
-                    TextField("Name", text: $name)
-                    TextField("Email", text: $email)
+                    TextField("Name", text: $name).onChange(of: name) {
+                        validate()
+                    }
+                    TextField("Email", text: $email).onChange(of: email) {
+                        validate()
+                    }
                         .keyboardType(.emailAddress)
                 }
                 
                 Section(header: Text("Entries")) {
-                    HStack {
+                    VStack {
+                        HStack{
+                            Text("How many users to save")
+                            Spacer()
+                        }
                         TextField("Count", text: $entryCount)
                             .keyboardType(.numberPad)
-                            .frame(width: 80)
                             .textFieldStyle(RoundedBorderTextFieldStyle())
                             .focused($isTextFieldFocused)
                             .onChange(of: entryCount) {
-                                validateEntryCount()
+                                validate()
                             }
+                        Button("Save \(entryCount) User(s)", action:saveUser).padding().buttonStyle(.borderedProminent).disabled(disableButton)
                         
-                        Button(action: saveUser) {
-                            Label("Save User(s)", systemImage: "checkmark.circle.fill")
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding()
-                                .background(Color.blue)
-                                .cornerRadius(8)
-                        }
                     }
                     Text("Allowed: \(minEntries)-\(maxEntries) entries").font(.caption).foregroundColor(.gray)
                 }
@@ -56,18 +57,21 @@ struct ViewAddData: View {
             .navigationBarItems(trailing: Button("Cancel") {
                 presentationMode.wrappedValue.dismiss()
             }).globalAlert()
+        }.onAppear(){
+            validate()
         }
     }
     
-    private func validateEntryCount() {
+    private func validate() {
+        disableButton=true
         // Ensure only numeric values are allowed
         if let count = Int(entryCount), count >= minEntries, count <= maxEntries {
             entryCount = "\(count)" // Valid case
-        } else if let count = Int(entryCount) {
-            entryCount = "\(min(max(count, minEntries), maxEntries))" // Clamp within range
-        } else {
-            entryCount = "\(minEntries)" // Reset to minimum if invalid
+            if !name.isEmpty && !email.isEmpty{
+                disableButton=false
+            }
         }
+        
     }
     
     private func saveUser() {

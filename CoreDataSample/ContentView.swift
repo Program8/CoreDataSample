@@ -35,7 +35,7 @@ struct ContentView: View {
                 }
                     .navigationTitle("Home")
                     .navigationDestination(isPresented: $isNavigating) {
-                        ViewCoreData()  // Destination View
+                        ViewActionList()  // Destination View
                     }
             }
         }.padding(10)

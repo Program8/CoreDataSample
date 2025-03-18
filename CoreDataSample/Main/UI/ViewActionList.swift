@@ -48,7 +48,7 @@ struct ViewActionList: View {
         return [
             ListSection(name: "Basic Actions", items: [
                 ListData(title: "Add Data", subTitle: "Insert new records", view: { AnyView(ViewCoreData()) }),
-                ListData(title: "Fetch Data", subTitle: "Retrieve stored records", view: { AnyView(ViewCoreData()) })
+                ListData(title: "Memory Usage View", subTitle: "Memory Usage View", view: { AnyView(MemoryUsageView()) })
             ]),
             ListSection(name: "Advanced Actions", items: [
                 ListData(title: "Update Data", subTitle: "Modify existing records", view: { AnyView(ViewCoreData()) }),

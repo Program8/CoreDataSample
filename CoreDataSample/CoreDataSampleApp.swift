@@ -11,6 +11,7 @@ import SwiftUI
 struct CoreDataSampleApp: App {
     let coreDataManager = CDM.shared
     @StateObject var alertManager = AlertManager.shared
+    
     var body: some Scene {
         WindowGroup {
             ContentView()
