@@ -78,6 +78,7 @@
 				B65369A02D7DD2EE00433AEA /* CoreDataSample */,
 				B65369B12D7DD2EF00433AEA /* CoreDataSampleTests */,
 				B65369BB2D7DD2EF00433AEA /* CoreDataSampleUITests */,
+				B6A2252F2D8DDDDF00D18384 /* Frameworks */,
 				B653699F2D7DD2EE00433AEA /* Products */,
 			);
 			sourceTree = "<group>";
@@ -90,6 +91,13 @@
 				B65369B82D7DD2EF00433AEA /* CoreDataSampleUITests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		B6A2252F2D8DDDDF00D18384 /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			name = Frameworks;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -195,6 +203,8 @@
 			);
 			mainGroup = B65369952D7DD2EE00433AEA;
 			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = B653699F2D7DD2EE00433AEA /* Products */;
 			projectDirPath = "";

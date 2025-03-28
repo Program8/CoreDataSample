@@ -6,7 +6,6 @@
 //
 
 import SwiftUI
-
 @main
 struct CoreDataSampleApp: App {
     let coreDataManager = CDM.shared
@@ -14,7 +13,7 @@ struct CoreDataSampleApp: App {
     
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            ContentView() 
             .environmentObject(alertManager) // Inject globally
 //            .globalAlert()
         }
@@ -23,6 +22,7 @@ struct CoreDataSampleApp: App {
 func invokeInUIThread(_ closure:@escaping @autoclosure()->Void){
     DispatchQueue.main.async{
         closure()
+        
     }
 }
 func invokeInUIThread(_ closure:@escaping ()->Void){
