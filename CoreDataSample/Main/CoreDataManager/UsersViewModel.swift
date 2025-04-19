@@ -7,19 +7,19 @@
 import CoreData
 class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDelegate {
     private let delayForSeconds:UInt32? = nil//3//nil
-    private let fetchedResultsController: NSFetchedResultsController<User>
-    @Published var users: [User] = []
+    private let fetchedResultsController: NSFetchedResultsController<CDUser>
+    @Published var users: [CDUser] = []
     @Published var showLoader=false
     @Published var totalUsers:Int = 0
     @Published var totalUsersDataInMemory:Int = 0
     override init() {
-        let request: NSFetchRequest<User> = User.fetchRequest()
+        let request: NSFetchRequest<CDUser> = CDUser.fetchRequest()
         request.fetchBatchSize=100
 //        request.fetchLimit=50
         request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         fetchedResultsController = NSFetchedResultsController(
             fetchRequest: request,
-            managedObjectContext: CDM.shared.newBgContext,
+            managedObjectContext: CDManager.shared.newBgContext,
             sectionNameKeyPath: nil,
             cacheName: nil
         )
@@ -34,10 +34,10 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
                 try fetchedResultsController.performFetch()
                 let usersBgThread = fetchedResultsController.fetchedObjects ?? []
                 let objectIDs = usersBgThread.map { $0.objectID }
-                let mainContext = CDM.shared.viewContext
+                let mainContext = CDManager.shared.viewContext
                 mainContext.performAndWait{
                     let usersInMainContext = objectIDs.compactMap { objectID in
-                        mainContext.object(with: objectID) as? User
+                        mainContext.object(with: objectID) as? CDUser
                     }
                     self.users=usersInMainContext
                 }
@@ -97,12 +97,12 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
 extension UsersViewModel{
     func saveUser(noOfEntriesToSave:Int,name:String,email:String,onComplete:@escaping()->()){
         showLoader=true
-        let bgContext = CDM.shared.newBgContext
+        let bgContext = CDManager.shared.newBgContext
         bgContext.perform {
             // Simulate a delay (e.g., network latency)
             if let val=self.delayForSeconds{sleep(val)}
             for _ in 1...noOfEntriesToSave{
-                let user = User(context: bgContext)
+                let user = CDUser(context: bgContext)
                 user.id = UUID()
                 user.name = name
                 user.createdAt = Date()

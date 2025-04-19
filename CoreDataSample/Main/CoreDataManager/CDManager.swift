@@ -7,7 +7,7 @@
 import Foundation
 import CoreData
 /// Core Data Manager
-class CDM:ObservableObject{
+class CDManager:ObservableObject{
     //    protocol Delegate:AnyObject{
     //        func coreDataManager(isLoadPersistentStoresSuccess: Bool,errorMsg:String?)
     //    }
@@ -17,7 +17,7 @@ class CDM:ObservableObject{
     private let dataModelName:String="CoreDataModel"
     private var persistentContainer: NSPersistentContainer!
     //    private weak var delegate:Delegate?
-    static let shared=CDM()
+    static let shared=CDManager()
     @Published var isLoaded:Bool?
     var loadingMsg=""
     private init(){

@@ -53,6 +53,10 @@ struct ViewActionList: View {
             ListSection(name: "Advanced Actions", items: [
                 ListData(title: "Update Data", subTitle: "Modify existing records", view: { AnyView(ViewCoreData()) }),
                 ListData(title: "Delete Data", subTitle: "Remove stored records", view: { AnyView(ViewCoreData()) })
+            ]),
+            ListSection(name: "Migration", items: [
+                ListData(title: "Lightweight Migration", subTitle: "Check CDManager",view: { AnyView(ViewCoreData()) }),
+//                ListData(title: "Delete Data", subTitle: "Remove stored records", view: { AnyView(ViewCoreData()) })
             ])
         ]
     }

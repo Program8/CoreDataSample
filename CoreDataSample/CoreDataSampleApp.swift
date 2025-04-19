@@ -8,7 +8,7 @@
 import SwiftUI
 @main
 struct CoreDataSampleApp: App {
-    let coreDataManager = CDM.shared
+    let coreDataManager = CDManager.shared
     @StateObject var alertManager = AlertManager.shared
     
     var body: some Scene {

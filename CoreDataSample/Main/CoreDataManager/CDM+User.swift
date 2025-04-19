@@ -7,7 +7,7 @@
 import Foundation
 import CoreData
 
-extension User{
+extension CDUser{
 
 //    static func saveUser(noOfEntriesToSave:Int,name:String,email:String,closure:@escaping(Result<Bool,Error>)->()){
 //        let bgContext = CDM.shared.newBgContext

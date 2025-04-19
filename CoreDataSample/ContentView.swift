@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ContentView: View {
-    @ObservedObject var cdm = CDM.shared
+    @ObservedObject var cdm = CDManager.shared
     @State private var isNavigating = false  // State to control navigation
     
     var body: some View {
