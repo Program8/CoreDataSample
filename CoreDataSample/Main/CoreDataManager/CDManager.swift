@@ -8,9 +8,9 @@ import Foundation
 import CoreData
 /// Core Data Manager
 class CDManager:ObservableObject{
-    //    protocol Delegate:AnyObject{
-    //        func coreDataManager(isLoadPersistentStoresSuccess: Bool,errorMsg:String?)
-    //    }
+    
+    let currentMigrationType = MigrationType.Lightweight
+    
     var viewContext: NSManagedObjectContext { persistentContainer.viewContext }
     var newBgContext:NSManagedObjectContext{persistentContainer.newBackgroundContext()}
     //    var newBgContext:NSManagedObjectContext{viewContext}
@@ -25,16 +25,19 @@ class CDManager:ObservableObject{
     }
     private func setUpCoreDataStack(){
         persistentContainer = NSPersistentContainer(name: dataModelName)
+        // MARK: Migration
+        if currentMigrationType == .Lightweight {
+            let description = persistentContainer.persistentStoreDescriptions.first
+            description?.shouldMigrateStoreAutomatically = true
+            description?.shouldInferMappingModelAutomatically = true
+        }
         persistentContainer.loadPersistentStores {[weak self] persistentStoreDescription, error in
             if let self{
                 if let error{
-                    //                    delegate?.coreDataManager(isLoadPersistentStoresSuccess: false, errorMsg: error.localizedDescription)
                     self.loadingMsg="Error: \(error.localizedDescription)"
                     Utility.log(msg:loadingMsg)
                     self.isLoaded=false
                 }else{
-                    //                    delegate?.coreDataManager(isLoadPersistentStoresSuccess: true, errorMsg: nil)
-//                    let str = "Persistent Stores: \(persistentStoreDescription.type)"
                     self.loadingMsg="In this iOS app, you can see which stores are currently being used\n\n NSPersistentStoreDescription :\n\n\(getLoadedNSPersistentStoreDescription())"
                     Utility.log(msg: loadingMsg)
                     self.isLoaded=true
@@ -81,5 +84,9 @@ class CDManager:ObservableObject{
                 return NSInMemoryStoreType
             }
         }
+    }
+    enum MigrationType{
+        case Lightweight,Staging,Manual,None
+        
     }
 }
