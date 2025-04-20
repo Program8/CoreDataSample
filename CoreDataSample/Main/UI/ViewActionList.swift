@@ -55,7 +55,7 @@ struct ViewActionList: View {
                 ListData(title: "Delete Data", subTitle: "Remove stored records", view: { AnyView(ViewCoreData()) })
             ]),
             ListSection(name: "Migration", items: [
-                ListData(title: "Lightweight Migration", subTitle: "Check CDManager",view: { AnyView(ViewCoreData()) }),
+                ListData(title: "Lightweight Migration", subTitle: "Migrating your data model automatically",view: { AnyView(RTFStyledViewer(fileName: R.RTFile.LightWeightMigration.name)) }),
 //                ListData(title: "Delete Data", subTitle: "Remove stored records", view: { AnyView(ViewCoreData()) })
             ])
         ]

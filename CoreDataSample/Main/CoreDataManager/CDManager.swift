@@ -9,7 +9,7 @@ import CoreData
 /// Core Data Manager
 class CDManager:ObservableObject{
     
-    let currentMigrationType = MigrationType.Lightweight
+    let currentMigrationType = MigrationType.None
     
     var viewContext: NSManagedObjectContext { persistentContainer.viewContext }
     var newBgContext:NSManagedObjectContext{persistentContainer.newBackgroundContext()}
@@ -26,7 +26,7 @@ class CDManager:ObservableObject{
     private func setUpCoreDataStack(){
         persistentContainer = NSPersistentContainer(name: dataModelName)
         // MARK: Migration
-        if currentMigrationType == .Lightweight {
+        if currentMigrationType == .Lightweight && canMigrate(toVersion: 2){
             let description = persistentContainer.persistentStoreDescriptions.first
             description?.shouldMigrateStoreAutomatically = true
             description?.shouldInferMappingModelAutomatically = true
@@ -85,8 +85,39 @@ class CDManager:ObservableObject{
             }
         }
     }
-    enum MigrationType{
+    enum MigrationType:String{
         case Lightweight,Staging,Manual,None
-        
+    }
+}
+extension CDManager{
+    func canMigrate(toVersion version: Int) -> Bool {
+        guard let modelBundleURL = Bundle.main.url(forResource: dataModelName, withExtension: "momd") else {
+            Utility.log(msg: "❌ Failed to find model bundle for \(dataModelName).momd")
+            return false
+        }
+
+        guard let sourceModelURL = Bundle(url: modelBundleURL)?.url(forResource: dataModelName, withExtension: "mom") else {
+            Utility.log(msg: " ❌ Failed to find source model: \(dataModelName).mom")
+            return false
+        }
+
+        guard let destinationModelURL = Bundle(url: modelBundleURL)?.url(forResource: "\(dataModelName) \(version)", withExtension: "mom") else {
+            Utility.log(msg: "❌ Failed to find destination model: \(dataModelName) \(version).mom")
+            return false
+        }
+
+        guard let sourceModel = NSManagedObjectModel(contentsOf: sourceModelURL) else {
+            Utility.log(msg: "❌ Failed to load NSManagedObjectModel from source URL")
+            return false
+        }
+
+        guard let destinationModel = NSManagedObjectModel(contentsOf: destinationModelURL) else {
+            Utility.log(msg: "❌ Failed to load NSManagedObjectModel from destination URL")
+            return false
+        }
+        let mappingModel = try? NSMappingModel.inferredMappingModel(forSourceModel: sourceModel, destinationModel: destinationModel)
+        let val=mappingModel != nil
+        Utility.log(msg:val ? "✅ Hurray! Can Migrate to Version \(version)" : "❌ Oops! Cannot Migrate to Version \(version)")
+        return val
     }
 }

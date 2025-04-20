@@ -16,7 +16,7 @@ class UsersViewModel: NSObject, ObservableObject, NSFetchedResultsControllerDele
         let request: NSFetchRequest<CDUser> = CDUser.fetchRequest()
         request.fetchBatchSize=100
 //        request.fetchLimit=50
-        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
+        request.sortDescriptors = [NSSortDescriptor(key: "name", ascending: false)]
         fetchedResultsController = NSFetchedResultsController(
             fetchRequest: request,
             managedObjectContext: CDManager.shared.newBgContext,
