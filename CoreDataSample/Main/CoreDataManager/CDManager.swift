@@ -8,29 +8,30 @@ import Foundation
 import CoreData
 /// Core Data Manager
 class CDManager:ObservableObject{
-    
-    let currentMigrationType = MigrationType.None
-    
     var viewContext: NSManagedObjectContext { persistentContainer.viewContext }
     var newBgContext:NSManagedObjectContext{persistentContainer.newBackgroundContext()}
     //    var newBgContext:NSManagedObjectContext{viewContext}
-    private let dataModelName:String="CoreDataModel"
+    var dataModelName:String=""//"CoreDataModel"
     private var persistentContainer: NSPersistentContainer!
     //    private weak var delegate:Delegate?
     static let shared=CDManager()
     @Published var isLoaded:Bool?
     var loadingMsg=""
+    var migrationManager:CDMigrationManager!
     private init(){
+        setup(dataModelName: "CoreDataModel")
+    }
+    public func setup(dataModelName:String){
+        self.dataModelName=dataModelName
+        migrationManager=CDMigrationManager()
         setUpCoreDataStack()
     }
     private func setUpCoreDataStack(){
         persistentContainer = NSPersistentContainer(name: dataModelName)
-        // MARK: Migration
-        if currentMigrationType == .Lightweight && canMigrate(toVersion: 2){
-            let description = persistentContainer.persistentStoreDescriptions.first
-            description?.shouldMigrateStoreAutomatically = true
-            description?.shouldInferMappingModelAutomatically = true
-        }
+//        // MARK: Migration
+        let description = persistentContainer.persistentStoreDescriptions.first
+        description?.shouldMigrateStoreAutomatically = true//The default is true.If possible "Use automatic lightweight migration" else "Use your provided .xcmappingmodel and run your custom NSEntityMigrationPolicy"
+        description?.shouldInferMappingModelAutomatically = true //The default is true.Core Data first tries to infer mapping automatically.If it fails, then it uses the .xcmappingmodel you manually provided.
         persistentContainer.loadPersistentStores {[weak self] persistentStoreDescription, error in
             if let self{
                 if let error{
@@ -85,39 +86,6 @@ class CDManager:ObservableObject{
             }
         }
     }
-    enum MigrationType:String{
-        case Lightweight,Staging,Manual,None
-    }
+    
 }
-extension CDManager{
-    func canMigrate(toVersion version: Int) -> Bool {
-        guard let modelBundleURL = Bundle.main.url(forResource: dataModelName, withExtension: "momd") else {
-            Utility.log(msg: "❌ Failed to find model bundle for \(dataModelName).momd")
-            return false
-        }
 
-        guard let sourceModelURL = Bundle(url: modelBundleURL)?.url(forResource: dataModelName, withExtension: "mom") else {
-            Utility.log(msg: " ❌ Failed to find source model: \(dataModelName).mom")
-            return false
-        }
-
-        guard let destinationModelURL = Bundle(url: modelBundleURL)?.url(forResource: "\(dataModelName) \(version)", withExtension: "mom") else {
-            Utility.log(msg: "❌ Failed to find destination model: \(dataModelName) \(version).mom")
-            return false
-        }
-
-        guard let sourceModel = NSManagedObjectModel(contentsOf: sourceModelURL) else {
-            Utility.log(msg: "❌ Failed to load NSManagedObjectModel from source URL")
-            return false
-        }
-
-        guard let destinationModel = NSManagedObjectModel(contentsOf: destinationModelURL) else {
-            Utility.log(msg: "❌ Failed to load NSManagedObjectModel from destination URL")
-            return false
-        }
-        let mappingModel = try? NSMappingModel.inferredMappingModel(forSourceModel: sourceModel, destinationModel: destinationModel)
-        let val=mappingModel != nil
-        Utility.log(msg:val ? "✅ Hurray! Can Migrate to Version \(version)" : "❌ Oops! Cannot Migrate to Version \(version)")
-        return val
-    }
-}
